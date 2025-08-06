@@ -8,7 +8,7 @@
 import UIKit
 
 class MainTabBarViewController: UITabBarController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -23,11 +23,11 @@ class MainTabBarViewController: UITabBarController {
         tabBar.backgroundColor = .whiteYP //#FFFFFF
         
         if #available(iOS 15.0, *) {
-                    let appearance = UITabBarAppearance()
-                    appearance.configureWithOpaqueBackground()
-                    tabBar.standardAppearance = appearance
-                    tabBar.scrollEdgeAppearance = appearance
-                }
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            tabBar.standardAppearance = appearance
+            tabBar.scrollEdgeAppearance = appearance
+        }
     }
     
     private func setupViewControllers() {
@@ -45,15 +45,11 @@ class MainTabBarViewController: UITabBarController {
             image: UIImage(named: "statisticIcon"),
             tag: 1
         )
-
-        
         
         let trackersNC = UINavigationController(rootViewController: trackersVC)
         let statisticsNC = UINavigationController(rootViewController: statisticsVC)
         
         self.viewControllers = [trackersNC, statisticsNC]
     }
-
-
 }
 
