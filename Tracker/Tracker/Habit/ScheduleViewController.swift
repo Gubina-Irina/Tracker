@@ -128,6 +128,7 @@ extension ScheduleViewController: UITableViewDataSource {
         } else {
             selectedDays.removeAll { $0 == weekday }
         }
+        selectedDays.sort { $0.rawValue < $1.rawValue }
     }
     
 }

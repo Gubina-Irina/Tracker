@@ -30,14 +30,14 @@ class CreateTrackerViewController: UIViewController {
         return button
     }()
     
-    private lazy var irrigularEventButton: UIButton = {
+    private lazy var irregularEventButton: UIButton = {
         let button = UIButton(type: .system)
         button.layer.cornerRadius = 16
         button.backgroundColor = .blackYP
         button.setTitle("Нерегулярное событие", for: .normal)
         button.setTitleColor(.whiteYP, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        button.addTarget(self, action: #selector(irrigularEventButtonTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(irregularEventButtonTapped), for: .touchUpInside)
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -60,11 +60,12 @@ class CreateTrackerViewController: UIViewController {
         
     }
     
-    @objc func irrigularEventButtonTapped() {
-        let irrigularEventVC = IrrigularEventViewController()
-        let irrigularEventNC = UINavigationController(rootViewController: irrigularEventVC)
-        irrigularEventNC.modalPresentationStyle = .pageSheet
-        present(irrigularEventNC, animated: true)
+    @objc func irregularEventButtonTapped() {
+        let irregularEventVC = IrregularEventViewController()
+        irregularEventVC.delegate = self
+        let irregularEventNC = UINavigationController(rootViewController: irregularEventVC)
+        irregularEventNC.modalPresentationStyle = .pageSheet
+        present(irregularEventNC, animated: true)
     }
     
     private func setupUI() {
@@ -75,7 +76,7 @@ class CreateTrackerViewController: UIViewController {
     }
     
     func addSubviews() {
-        [habitButton, irrigularEventButton].forEach { view.addSubview($0) }
+        [habitButton, irregularEventButton].forEach { view.addSubview($0) }
     }
     
     private func configureView() {
@@ -93,11 +94,11 @@ class CreateTrackerViewController: UIViewController {
             habitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             habitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            // Irrigular event Button
-            irrigularEventButton.heightAnchor.constraint(equalToConstant: 60),
-            irrigularEventButton.topAnchor.constraint(equalTo: habitButton.bottomAnchor, constant: 16),
-            irrigularEventButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            irrigularEventButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            // Irregular event Button
+            irregularEventButton.heightAnchor.constraint(equalToConstant: 60),
+            irregularEventButton.topAnchor.constraint(equalTo: habitButton.bottomAnchor, constant: 16),
+            irregularEventButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            irregularEventButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
 }

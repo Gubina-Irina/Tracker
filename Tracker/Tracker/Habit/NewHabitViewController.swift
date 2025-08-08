@@ -86,7 +86,7 @@ class NewHabitViewController: UIViewController {
        selectedCategory = "Спорт"
         setupUI()
         setupTapGesture()
-        updateCreatButtonState()
+        updateCreateButtonState()
         
     }
     
@@ -159,7 +159,7 @@ class NewHabitViewController: UIViewController {
         present(scheduleNC, animated: true)
     }
     
-    private func updateCreatButtonState() {
+    private func updateCreateButtonState() {
         let isNameTextField = !(nameTrackerTextField.text?.isEmpty ?? true)
         let isSelectedCategory = selectedCategory != nil
         let isSelectedSchedule = !selectedSchedule.isEmpty
@@ -193,7 +193,7 @@ class NewHabitViewController: UIViewController {
     }
     
     @objc private func textFieldChanged() {
-        updateCreatButtonState()
+        updateCreateButtonState()
     }
 }
 
@@ -207,14 +207,12 @@ extension NewHabitViewController: UITableViewDataSource {
         cell.backgroundColor = .lightGrayYP
         cell.textLabel?.font = UIFont.systemFont(ofSize: 17)
         cell.textLabel?.textColor = .blackYP
-        
+        cell.accessoryType = .disclosureIndicator
         
         if indexPath.row == 0 {
             cell.textLabel?.text = "Категория"
-            cell.accessoryType = .disclosureIndicator
         } else {
             cell.textLabel?.text = "Расписание"
-            cell.accessoryType = .disclosureIndicator
             
             configureScheduleCell(cell)
         }
@@ -255,7 +253,7 @@ extension NewHabitViewController: ScheduleSelectionDelegate {
         if let cell = categoryAndScheduleTableView.cellForRow(at: IndexPath(row: 1, section: 0)) {
             configureScheduleCell(cell)
         }
-        updateCreatButtonState()
+        updateCreateButtonState()
     }
     
     private func configureScheduleCell(_ cell: UITableViewCell) {
@@ -278,6 +276,6 @@ extension NewHabitViewController: CategorySelectionDelegate {
     func didSelectCategory(_ category: String) {
         selectedCategory = category
         categoryAndScheduleTableView.reloadData()
-        updateCreatButtonState()
+        updateCreateButtonState()
     }
 }

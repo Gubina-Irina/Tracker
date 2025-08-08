@@ -10,6 +10,7 @@ import UIKit
 class TrackerCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Properties
+    private var tracker: Tracker?
     private var trackerId: UUID?
     private var currentDate: Date = Date()
     private var isCompletedToday: Bool = false
@@ -159,6 +160,7 @@ class TrackerCollectionViewCell: UICollectionViewCell {
     
     func configure(with tracker: Tracker, completedDays: Int, isCompletedToday: Bool, currentDate: Date) {
         
+        self.tracker = tracker
         self.trackerId = tracker.id
         self.currentDate = currentDate
         self.isCompletedToday = isCompletedToday
@@ -181,9 +183,14 @@ class TrackerCollectionViewCell: UICollectionViewCell {
         let today = Calendar.current.startOfDay(for: Date())
         let selectedDate = Calendar.current.startOfDay(for: currentDate)
         
-        guard let trackerId = trackerId else { return }
-        guard selectedDate <= today else { return }
+        guard let trackerId = trackerId,
+        let tracker = tracker else { return }
         
+        if tracker.schedule.isEmpty {
+            guard Calendar.current.isDate(selectedDate, inSameDayAs: today) else { return }
+                } else {
+                    guard selectedDate <= today else { return }
+        }
         isCompletedToday.toggle()
         updateButtonAppearance(trackerColor: cardView.backgroundColor ?? .greenYP)
         onCompletion?(trackerId, currentDate, isCompletedToday)

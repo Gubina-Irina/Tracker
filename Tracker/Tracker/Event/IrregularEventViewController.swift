@@ -7,8 +7,9 @@
 
 import UIKit
 
-class IrrigularEventViewController: UIViewController {
+class IrregularEventViewController: UIViewController {
     
+    weak var delegate: CreateTrackerViewControllerDelegate?
     private var selectedCategory: String?
     
     private lazy var nameTrackerTextField: UITextField = {
@@ -34,26 +35,44 @@ class IrrigularEventViewController: UIViewController {
         let button = UIButton(type: .system)
         button.layer.cornerRadius = 16
         button.backgroundColor = .lightGrayYP
-        button.setTitle("Категория", for: .normal)
-        button.setTitleColor(.blackYP, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 17)
-        button.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
-        button.contentHorizontalAlignment = .left
-        button.contentVerticalAlignment = .center
-        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 30)
-        button.translatesAutoresizingMaskIntoConstraints = false
         
-        let forwardArrowImage = UIImageView(image: UIImage(named: "forwardArrow"))
-        forwardArrowImage.tintColor = .grayYP
-        forwardArrowImage.translatesAutoresizingMaskIntoConstraints = false
-        button.addSubview(forwardArrowImage)
-        
-        NSLayoutConstraint.activate([
-            forwardArrowImage.heightAnchor.constraint(equalToConstant: 24),
-            forwardArrowImage.widthAnchor.constraint(equalToConstant: 24),
-            forwardArrowImage.centerYAnchor.constraint(equalTo: button.centerYAnchor),
-            forwardArrowImage.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -16)
-        ])
+        if #available(iOS 15.0, *) {
+            var configuration = UIButton.Configuration.plain()
+            configuration.title = "Категория"
+            configuration.baseForegroundColor = .blackYP
+            configuration.contentInsets = NSDirectionalEdgeInsets(
+                top: 0, leading: 16, bottom: 0, trailing: 30)
+            let forwardArrowImage = UIImage(resource: .forwardArrow)
+            configuration.image = forwardArrowImage
+            configuration.imageColorTransformer = UIConfigurationColorTransformer { _ in
+                return .grayYP
+            }
+            configuration.imagePlacement = .trailing
+            configuration.imagePadding = 8
+            
+            button.configuration = configuration
+        } else {
+            button.setTitle("Категория", for: .normal)
+            button.setTitleColor(.blackYP, for: .normal)
+            button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 30)
+            
+            let forwardArrowImage = UIImageView(image: UIImage(resource: .forwardArrow))
+            forwardArrowImage.tintColor = .grayYP
+            forwardArrowImage.translatesAutoresizingMaskIntoConstraints = false
+            button.addSubview(forwardArrowImage)
+            
+            NSLayoutConstraint.activate([
+                forwardArrowImage.heightAnchor.constraint(equalToConstant: 24),
+                forwardArrowImage.widthAnchor.constraint(equalToConstant: 24),
+                forwardArrowImage.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+                forwardArrowImage.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -16)
+            ])
+        }
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 17)
+            button.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
+            button.contentHorizontalAlignment = .leading
+            button.contentVerticalAlignment = .center
+            button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
     }()
@@ -93,9 +112,12 @@ class IrrigularEventViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupTapGesture()
+        
+        //TODO: тут пока принудительно стоит категория. как в тз нужно будет реализовать, убрать
+       selectedCategory = "Спорт"
     }
     
-    private func updateCreatButtonState() {
+    private func updateCreateButtonState() {
         let isNameTextField = !(nameTrackerTextField.text?.isEmpty ?? true)
         let isSelectedCategory = selectedCategory != nil
         
@@ -169,8 +191,18 @@ class IrrigularEventViewController: UIViewController {
     }
     
     @objc private func createButtonTapped () {
-        //TODO: создание трека
-        dismiss(animated: true)
+        guard let name = nameTrackerTextField.text, !name.isEmpty,
+        let category = selectedCategory else { return }
+        
+        let newTracker = Tracker(id: UUID(),
+                                 name: name,
+                                 color: .colorYP.randomElement() ?? .redYP,
+                                 emoji: "🤍",
+                                 schedule: [])
+        delegate?.didCreateTracker(newTracker, categoryTitle: category)
+        
+        presentingViewController?.presentingViewController?.dismiss(animated: true)
+        //dismiss(animated: true)
     }
     
     
@@ -179,13 +211,13 @@ class IrrigularEventViewController: UIViewController {
     }
     
     @objc private func textFieldChanged() {
-        updateCreatButtonState()
+        updateCreateButtonState()
     }
     
 }
 
 
-extension IrrigularEventViewController: UITextFieldDelegate {
+extension IrregularEventViewController: UITextFieldDelegate {
     
     // Скрываем клавиатуру по нажатию на Done
     
@@ -195,9 +227,9 @@ extension IrrigularEventViewController: UITextFieldDelegate {
     }
 }
 
-extension IrrigularEventViewController: EventCategoryDelegate {
+extension IrregularEventViewController: EventCategoryDelegate {
     func didSelectCategory(_ category: String) {
         selectedCategory = category
-        updateCreatButtonState()
+        updateCreateButtonState()
     }
 }

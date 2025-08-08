@@ -131,17 +131,19 @@ class TrackersViewController: UIViewController {
         let dateStart = Calendar.current.startOfDay(for: date)
         let today = Calendar.current.startOfDay(for: Date())
         
-        guard dateStart <= today else { return }
-        
         guard let tracker = (visibleCategories.flatMap { $0.trackers }).first(where: { $0.id == trackerID }) else { return }
         
-        let dayOfWeek = Calendar.current.component(.weekday, from: date)
+        // Для нерегулярных событий разрешаем отметку только на сегодня
+        if tracker.schedule.isEmpty {
+            guard dateStart == today else { return }
+        } else {
+            // Для регулярных событий проверяем день недели и что дата не в будущем
+            let dayOfWeek = Calendar.current.component(.weekday, from: date)
             let currentWeekday = Weekday(rawValue: dayOfWeek) ?? .monday
-            
-            // Для нерегулярных событий
-            guard tracker.schedule.isEmpty || tracker.schedule.contains(currentWeekday) else {
+            guard tracker.schedule.contains(currentWeekday) && dateStart <= today else {
                 return
             }
+        }
         
         if isCompleted {
             let record = TrackerRecord(trackerId: trackerID, date: dateStart)
@@ -166,6 +168,10 @@ class TrackersViewController: UIViewController {
         //setupDate()
         
         setupConstraints()
+        
+        visibleCategories = filterTrackers(for: datePicker.date)
+        showPlaceholder()
+        collectionView.reloadData()
         
     }
     
@@ -250,25 +256,28 @@ class TrackersViewController: UIViewController {
     }
     private func showPlaceholder() {
         //TODO: if the tracker is empty, then show placeholder
-        let isEmpty = categories.flatMap{$0.trackers}.isEmpty
+        let isEmpty = visibleCategories.flatMap{$0.trackers}.isEmpty
         placeholderStack.isHidden = !isEmpty
     }
     
     private func filterTrackers(for date: Date) -> [TrackerCategory] {
         let dayOfWeek = Calendar.current.component(.weekday, from: date)
         let currentWeekday = Weekday(rawValue: dayOfWeek) ?? .monday
+        let isToday = Calendar.current.isDate(date, inSameDayAs: Date())
         
         return categories.compactMap { category in
-            let filteredTrackers = category.trackers.filter { tracker in
-                if tracker.schedule.isEmpty {
-                    return true
+                let filteredTrackers = category.trackers.filter { tracker in
+                    if tracker.schedule.isEmpty {
+                        // Нерегулярные события показываем только для сегодняшней даты
+                        return isToday
+                    } else {
+                        // Регулярные события показываем по расписанию
+                        return tracker.schedule.contains(currentWeekday)
+                    }
                 }
-                return tracker.schedule.contains(currentWeekday)
+                return filteredTrackers.isEmpty ? nil :
+                    TrackerCategory(title: category.title, trackers: filteredTrackers)
             }
-            
-            return filteredTrackers.isEmpty ? nil :
-                TrackerCategory(title: category.title, trackers: filteredTrackers)
-        }
     }
     
     @objc private func addTrackersButton(_ sender: UIButton) {
@@ -359,7 +368,9 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 extension TrackersViewController: CreateTrackerViewControllerDelegate {
     func didCreateTracker(_ tracker: Tracker, categoryTitle: String) {
         addTrackerCategory(tracker, to: categoryTitle)
+        visibleCategories = filterTrackers(for: datePicker.date)
         collectionView.reloadData()
+        showPlaceholder()
         dismiss(animated: true)
     }
 }

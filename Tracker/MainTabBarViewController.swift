@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MainTabBarViewController: UITabBarController {
+final class MainTabBarViewController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,9 +18,9 @@ class MainTabBarViewController: UITabBarController {
     }
     
     private func setupTabBarAppearance() {
-        tabBar.tintColor = .blueYP //#3772E7
-        tabBar.unselectedItemTintColor = .grayYP //#AEAFB4
-        tabBar.backgroundColor = .whiteYP //#FFFFFF
+        tabBar.tintColor = .blueYP
+        tabBar.unselectedItemTintColor = .grayYP
+        tabBar.backgroundColor = .whiteYP
         
         if #available(iOS 15.0, *) {
             let appearance = UITabBarAppearance()
@@ -36,20 +36,20 @@ class MainTabBarViewController: UITabBarController {
         
         trackersVC.tabBarItem = UITabBarItem(
             title: "Трекеры",
-            image: UIImage(named: "trekersIcon"),
+            image: UIImage(resource: .trackersIcon),
             tag: 0
         )
         
         statisticsVC.tabBarItem = UITabBarItem(
             title: "Статистика",
-            image: UIImage(named: "statisticIcon"),
+            image: UIImage(resource: .statisticIcon),
             tag: 1
         )
         
         let trackersNC = UINavigationController(rootViewController: trackersVC)
         let statisticsNC = UINavigationController(rootViewController: statisticsVC)
         
-        self.viewControllers = [trackersNC, statisticsNC]
+        viewControllers = [trackersNC, statisticsNC]
     }
 }
 

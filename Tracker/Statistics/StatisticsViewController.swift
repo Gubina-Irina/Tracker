@@ -9,7 +9,7 @@ import UIKit
 
 class StatisticsViewController: UIViewController {
     
-    private var staticticLabel: UILabel!
+    private var statisticsLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,21 +31,21 @@ class StatisticsViewController: UIViewController {
     }
     
     private func setupStatisticLabel() {
-        staticticLabel = UILabel()
-        staticticLabel.text = "Статистика"
-        staticticLabel.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        staticticLabel.textColor = .blackYP
+        statisticsLabel = UILabel()
+        statisticsLabel.text = "Статистика"
+        statisticsLabel.font = UIFont.systemFont(ofSize: 34, weight: .bold)
+        statisticsLabel.textColor = .blackYP
         
-        staticticLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(staticticLabel)
+        statisticsLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(statisticsLabel)
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             
             // Trackers label
-            staticticLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            staticticLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44)
+            statisticsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            statisticsLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44)
         ])
     }
 }
