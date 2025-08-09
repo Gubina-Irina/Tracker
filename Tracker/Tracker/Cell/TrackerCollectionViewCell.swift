@@ -14,6 +14,11 @@ class TrackerCollectionViewCell: UICollectionViewCell {
     private var trackerId: UUID?
     private var currentDate: Date = Date()
     private var isCompletedToday: Bool = false
+    private let calendar: Calendar = {
+    var calendar = Calendar(identifier: .gregorian)
+        calendar.firstWeekday = 2 // Понедельник — первый день недели
+        return calendar
+    }()
     var onCompletion: ((UUID, Date, Bool) -> Void)?
     static let identifier = "TrackerCollectionViewCell"
     
@@ -180,14 +185,14 @@ class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     @objc private func plusButtonTapped() {
-        let today = Calendar.current.startOfDay(for: Date())
-        let selectedDate = Calendar.current.startOfDay(for: currentDate)
+        let today = calendar.startOfDay(for: Date())
+        let selectedDate = calendar.startOfDay(for: currentDate)
         
         guard let trackerId = trackerId,
         let tracker = tracker else { return }
         
         if tracker.schedule.isEmpty {
-            guard Calendar.current.isDate(selectedDate, inSameDayAs: today) else { return }
+            guard calendar.isDate(selectedDate, inSameDayAs: today) else { return }
                 } else {
                     guard selectedDate <= today else { return }
         }

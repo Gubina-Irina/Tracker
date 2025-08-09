@@ -14,6 +14,11 @@ protocol TrackerCreationDelegate: AnyObject {
 class TrackersViewController: UIViewController {
     
     //MARK: - Private properties
+    private let calendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.firstWeekday = 2 // Понедельник — первый день недели
+        return calendar
+    }()
     private var currentDate = Date()
     private var visibleCategories: [TrackerCategory] = []
     private var categories: [TrackerCategory] = [] {
@@ -113,6 +118,11 @@ class TrackersViewController: UIViewController {
         addSubviews()
         setupUI()
     }
+    private func adjustedWeekday(from calendarWeekday: Int) -> Int {
+        let firstWeekday = calendar.firstWeekday // 2 — понедельник
+        let shifted = calendarWeekday - firstWeekday + 1
+        return shifted <= 0 ? shifted + 7 : shifted
+    }
     
     func addTrackerCategory(_ tracker: Tracker, to categoryTitle: String) {
         var updatedCategories = categories
@@ -128,8 +138,8 @@ class TrackersViewController: UIViewController {
     }
     
     func toggleCompletion(for trackerID: UUID, date: Date, isCompleted: Bool) {
-        let dateStart = Calendar.current.startOfDay(for: date)
-        let today = Calendar.current.startOfDay(for: Date())
+        let dateStart = calendar.startOfDay(for: date)
+        let today = calendar.startOfDay(for: Date())
         
         guard let tracker = (visibleCategories.flatMap { $0.trackers }).first(where: { $0.id == trackerID }) else { return }
         
@@ -138,8 +148,8 @@ class TrackersViewController: UIViewController {
             guard dateStart == today else { return }
         } else {
             // Для регулярных событий проверяем день недели и что дата не в будущем
-            let dayOfWeek = Calendar.current.component(.weekday, from: date)
-            let currentWeekday = Weekday(rawValue: dayOfWeek) ?? .monday
+            let dayOfWeek = calendar.component(.weekday, from: date)
+            let currentWeekday = Weekday(rawValue: adjustedWeekday(from: dayOfWeek)) ?? .monday
             guard tracker.schedule.contains(currentWeekday) && dateStart <= today else {
                 return
             }
@@ -148,17 +158,38 @@ class TrackersViewController: UIViewController {
         if isCompleted {
             let record = TrackerRecord(trackerId: trackerID, date: dateStart)
             if !completedTrackers.contains(where: {
-                $0.trackerId == trackerID && Calendar.current.isDate($0.date, inSameDayAs: dateStart)
+                $0.trackerId == trackerID && calendar.isDate($0.date, inSameDayAs: dateStart)
             }) {
                 completedTrackers.append(record)
             }
         } else {
             completedTrackers.removeAll {
-                $0.trackerId == trackerID && Calendar.current.isDate($0.date, inSameDayAs: dateStart)
+                $0.trackerId == trackerID && calendar.isDate($0.date, inSameDayAs: dateStart)
             }
         }
         
         collectionView.reloadData()
+    }
+    
+    private func filterTrackers(for date: Date) -> [TrackerCategory] {
+        let dayOfWeek = calendar.component(.weekday, from: date)
+        let adjustedDayOfWeek = adjustedWeekday(from: dayOfWeek)
+        let currentWeekday = Weekday(rawValue: adjustedDayOfWeek) ?? .monday
+        let isToday = calendar.isDate(date, inSameDayAs: Date())
+        
+        return categories.compactMap { category in
+            let filteredTrackers = category.trackers.filter { tracker in
+                if tracker.schedule.isEmpty {
+                    // Нерегулярные события показываем только для сегодняшней даты
+                    return isToday
+                } else {
+                    // Регулярные события показываем по расписанию
+                    return tracker.schedule.contains(currentWeekday)
+                }
+            }
+            return filteredTrackers.isEmpty ? nil :
+            TrackerCategory(title: category.title, trackers: filteredTrackers)
+        }
     }
     
     private func setupUI() {
@@ -210,7 +241,7 @@ class TrackersViewController: UIViewController {
     //        datePicker.preferredDatePickerStyle = .compact
     //        datePicker.locale = Locale(identifier: "ru_RU")
     //        datePicker.addTarget(self, action: #selector(dateChanged(_:)), for: .valueChanged)
-    //        
+    //
     //        datePicker.translatesAutoresizingMaskIntoConstraints = false
     //
     //        dateTextField = UITextField()
@@ -220,10 +251,10 @@ class TrackersViewController: UIViewController {
     //        dateTextField.tintColor = .grayYP
     //        dateTextField.font = UIFont.systemFont(ofSize: 17)
     //        //view.addSubview(datePicker)
-    //        
+    //
     //        dateTextField.translatesAutoresizingMaskIntoConstraints = false
     //        view.addSubview(dateTextField)
-    //        
+    //
     //        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: dateTextField)
     
     private func setupConstraints() {
@@ -260,26 +291,6 @@ class TrackersViewController: UIViewController {
         placeholderStack.isHidden = !isEmpty
     }
     
-    private func filterTrackers(for date: Date) -> [TrackerCategory] {
-        let dayOfWeek = Calendar.current.component(.weekday, from: date)
-        let currentWeekday = Weekday(rawValue: dayOfWeek) ?? .monday
-        let isToday = Calendar.current.isDate(date, inSameDayAs: Date())
-        
-        return categories.compactMap { category in
-                let filteredTrackers = category.trackers.filter { tracker in
-                    if tracker.schedule.isEmpty {
-                        // Нерегулярные события показываем только для сегодняшней даты
-                        return isToday
-                    } else {
-                        // Регулярные события показываем по расписанию
-                        return tracker.schedule.contains(currentWeekday)
-                    }
-                }
-                return filteredTrackers.isEmpty ? nil :
-                    TrackerCategory(title: category.title, trackers: filteredTrackers)
-            }
-    }
-    
     @objc private func addTrackersButton(_ sender: UIButton) {
         let createTrackerVC = CreateTrackerViewController()
         createTrackerVC.delegate = self
@@ -292,9 +303,9 @@ class TrackersViewController: UIViewController {
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
-            visibleCategories = filterTrackers(for: currentDate)
-            collectionView.reloadData()
-            showPlaceholder()
+        visibleCategories = filterTrackers(for: currentDate)
+        collectionView.reloadData()
+        showPlaceholder()
         // dateTextField.text = formatDate(sender.date)
     }
     // TODO: Подумать над реализацией даты, как в фигме. Сделать текст филд (например) и сделать пикер прозрачным.

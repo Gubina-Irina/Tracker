@@ -7,9 +7,17 @@
 
 import UIKit
 
-class StatisticsViewController: UIViewController {
+final class StatisticsViewController: UIViewController {
     
-    private var statisticsLabel: UILabel!
+    private lazy var statisticsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Статистика"
+        label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
+        label.textColor = .blackYP
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,7 +28,7 @@ class StatisticsViewController: UIViewController {
     
     private func setupUI() {
         configureView()
-        setupStatisticLabel()
+        view.addSubview(statisticsLabel)
         setupConstraints()
         
     }
@@ -30,15 +38,6 @@ class StatisticsViewController: UIViewController {
         
     }
     
-    private func setupStatisticLabel() {
-        statisticsLabel = UILabel()
-        statisticsLabel.text = "Статистика"
-        statisticsLabel.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        statisticsLabel.textColor = .blackYP
-        
-        statisticsLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(statisticsLabel)
-    }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
