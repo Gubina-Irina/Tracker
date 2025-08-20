@@ -180,7 +180,10 @@ class TrackerCollectionViewCell: UICollectionViewCell {
     
     private func updateButtonAppearance(trackerColor: UIColor) {
         let image = isCompletedToday ? UIImage(systemName: "checkmark") : UIImage(systemName: "plus")
-        plusButton.setImage(image, for: .normal)
+        let configuration = UIImage.SymbolConfiguration(pointSize: 12, weight: .bold)
+            let sizedImage = image?.withConfiguration(configuration)
+        
+        plusButton.setImage(sizedImage, for: .normal)
         plusButton.backgroundColor = isCompletedToday ? trackerColor.withAlphaComponent(0.3) : trackerColor
     }
     

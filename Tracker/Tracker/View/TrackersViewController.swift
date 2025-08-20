@@ -311,9 +311,9 @@ class TrackersViewController: UIViewController {
             
             //Collection view
             collectionView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 24),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
     private func showPlaceholder() {
@@ -389,7 +389,8 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
         let padding: CGFloat = 16
-        let availableWidth = collectionView.bounds.width - (padding * 3)
+        let spacing: CGFloat = 9
+        let availableWidth = collectionView.bounds.width - (padding * 2) - spacing
         let cellWidth = availableWidth / 2
         return CGSize(width: cellWidth, height: 148) // 90 (карточка) + 16 + 34 (кнопка) + 8
     }
@@ -397,7 +398,19 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 9 // Расстояние между ячейками в одном ряду
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 16
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
 }
 
@@ -410,14 +423,8 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersViewController: CreateTrackerViewControllerDelegate {
     func didCreateTracker(_ tracker: Tracker, categoryTitle: String) {
-        //        addTrackerCategory(tracker, to: categoryTitle)
-        //        visibleCategories = filterTrackers(for: datePicker.date)
-        //        collectionView.reloadData()
-        //        showPlaceholder()
-        //        dismiss(animated: true)
-        //    }
         do {
-            if let existingCategory = try? trackerCategoryStore.fetchCategory(with: categoryTitle) {
+            if let _ = try? trackerCategoryStore.fetchCategory(with: categoryTitle) {
                 try trackerStore.addTracker(tracker, categoryTitle: categoryTitle)
             } else {
                 let newCategory = TrackerCategory(title: categoryTitle, trackers: [tracker])
@@ -434,6 +441,11 @@ extension TrackersViewController: CreateTrackerViewControllerDelegate {
 extension TrackersViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
         loadInitialData()
+    }
+}
+
+extension TrackersViewController: TrackerRecordStoreDelegate {
+    func store(_ store: TrackerRecordStore, didUpdate update: TrackerRecordStoreUpdate) {
         do {
             completedTrackers = try trackerRecordStore.fetchAllTrackerRecords()
             collectionView.reloadData()
@@ -441,12 +453,6 @@ extension TrackersViewController: TrackerStoreDelegate {
         } catch {
             print("Error loading records: \(error)")
         }
-    }
-}
-
-extension TrackersViewController: TrackerRecordStoreDelegate {
-    func store(_ store: TrackerRecordStore, didUpdate update: TrackerRecordStoreUpdate) {
-        loadInitialData()
     }
 }
 
