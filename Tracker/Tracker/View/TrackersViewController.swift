@@ -23,6 +23,7 @@ class TrackersViewController: UIViewController {
     private var visibleCategories: [TrackerCategory] = []
     private var categories: [TrackerCategory] = [] {
         didSet {
+            visibleCategories = filterTrackers(for: datePicker.date)
             showPlaceholder()
             collectionView.reloadData()
         }
@@ -34,6 +35,26 @@ class TrackersViewController: UIViewController {
         }
     }
     
+    private lazy var trackerStore: TrackerStore = {
+        let store = TrackerStore()
+        store.delegate = self
+        
+        return store
+    }()
+    
+    private lazy var trackerRecordStore: TrackerRecordStore =  {
+        let store = TrackerRecordStore()
+        store.delegate = self
+        
+        return store
+    }()
+    
+    private lazy var trackerCategoryStore: TrackerCategoryStore = {
+        let store = TrackerCategoryStore()
+        store.delegate = self
+        
+        return store
+    }()
     //MARK: - UI Elements
     private var trackerAddingButton: UIButton!
     
@@ -117,7 +138,21 @@ class TrackersViewController: UIViewController {
         datePicker.date = Date()
         addSubviews()
         setupUI()
+        loadInitialData()
     }
+    
+    private func loadInitialData() {
+        do {
+            categories = try trackerCategoryStore.fetchAllCategories()
+            completedTrackers = try trackerRecordStore.fetchAllTrackerRecords()
+            visibleCategories = filterTrackers(for: datePicker.date)
+            collectionView.reloadData()
+            showPlaceholder()
+        } catch {
+            print("Error loading data: \(error)")
+        }
+    }
+    
     private func adjustedWeekday(from calendarWeekday: Int) -> Int {
         let firstWeekday = calendar.firstWeekday // 2 — понедельник
         let shifted = calendarWeekday - firstWeekday + 1
@@ -155,20 +190,16 @@ class TrackersViewController: UIViewController {
             }
         }
         
-        if isCompleted {
-            let record = TrackerRecord(trackerId: trackerID, date: dateStart)
-            if !completedTrackers.contains(where: {
-                $0.trackerId == trackerID && calendar.isDate($0.date, inSameDayAs: dateStart)
-            }) {
-                completedTrackers.append(record)
+        do {
+            if isCompleted {
+                let record = TrackerRecord(trackerId: trackerID, date: dateStart)
+                try trackerRecordStore.addTrackerRecord(record)
+            } else {
+                try trackerRecordStore.deleteTracker(with: trackerID, date: dateStart)
             }
-        } else {
-            completedTrackers.removeAll {
-                $0.trackerId == trackerID && calendar.isDate($0.date, inSameDayAs: dateStart)
-            }
+        } catch {
+            print("Error toggling completion: \(error)")
         }
-        
-        collectionView.reloadData()
     }
     
     private func filterTrackers(for date: Date) -> [TrackerCategory] {
@@ -287,8 +318,9 @@ class TrackersViewController: UIViewController {
     }
     private func showPlaceholder() {
         //TODO: if the tracker is empty, then show placeholder
-        let isEmpty = visibleCategories.flatMap{$0.trackers}.isEmpty
-        placeholderStack.isHidden = !isEmpty
+        let hasVisibleTrackers =  visibleCategories.contains { !$0.trackers.isEmpty }
+        placeholderStack.isHidden = hasVisibleTrackers
+        collectionView.isHidden = !hasVisibleTrackers
     }
     
     @objc private func addTrackersButton(_ sender: UIButton) {
@@ -304,8 +336,8 @@ class TrackersViewController: UIViewController {
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
         visibleCategories = filterTrackers(for: currentDate)
-        collectionView.reloadData()
         showPlaceholder()
+        collectionView.reloadData()
         // dateTextField.text = formatDate(sender.date)
     }
     // TODO: Подумать над реализацией даты, как в фигме. Сделать текст филд (например) и сделать пикер прозрачным.
@@ -378,10 +410,48 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersViewController: CreateTrackerViewControllerDelegate {
     func didCreateTracker(_ tracker: Tracker, categoryTitle: String) {
-        addTrackerCategory(tracker, to: categoryTitle)
-        visibleCategories = filterTrackers(for: datePicker.date)
-        collectionView.reloadData()
-        showPlaceholder()
-        dismiss(animated: true)
+        //        addTrackerCategory(tracker, to: categoryTitle)
+        //        visibleCategories = filterTrackers(for: datePicker.date)
+        //        collectionView.reloadData()
+        //        showPlaceholder()
+        //        dismiss(animated: true)
+        //    }
+        do {
+            if let existingCategory = try? trackerCategoryStore.fetchCategory(with: categoryTitle) {
+                try trackerStore.addTracker(tracker, categoryTitle: categoryTitle)
+            } else {
+                let newCategory = TrackerCategory(title: categoryTitle, trackers: [tracker])
+                try trackerCategoryStore.addCategory(newCategory)
+            }
+            loadInitialData()
+            dismiss(animated: true)
+        } catch {
+            print("Error creating tracker: \(error)")
+        }
+    }
+}
+
+extension TrackersViewController: TrackerStoreDelegate {
+    func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
+        loadInitialData()
+        do {
+            completedTrackers = try trackerRecordStore.fetchAllTrackerRecords()
+            collectionView.reloadData()
+            print("Записей после обновления: \(completedTrackers.count)")
+        } catch {
+            print("Error loading records: \(error)")
+        }
+    }
+}
+
+extension TrackersViewController: TrackerRecordStoreDelegate {
+    func store(_ store: TrackerRecordStore, didUpdate update: TrackerRecordStoreUpdate) {
+        loadInitialData()
+    }
+}
+
+extension TrackersViewController: TrackerCategoryStoreDelegate {
+    func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
+        loadInitialData()
     }
 }

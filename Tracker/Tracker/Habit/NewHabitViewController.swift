@@ -12,6 +12,22 @@ class NewHabitViewController: UIViewController {
     weak var delegate: CreateTrackerViewControllerDelegate?
     private var selectedCategory: String?
     private var selectedSchedule: [Weekday] = []
+    private var selectedEmoji: String?
+    private var selectedColor: UIColor?
+    
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return scrollView
+    }()
+    
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        return view
+    }()
     
     private lazy var nameTrackerTextField: UITextField = {
         let textField = UITextField()
@@ -78,6 +94,41 @@ class NewHabitViewController: UIViewController {
         return button
     }()
     
+    private lazy var emojiCollectionView: EmojiCollectionView = {
+        let collectionView = EmojiCollectionView()
+        collectionView.delegate = self
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return collectionView
+    }()
+    
+    private lazy var colorCollectionView: ColorCollectionView = {
+        let collectionView = ColorCollectionView()
+        collectionView.delegate = self
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return collectionView
+    }()
+    
+    
+    private lazy var emojiTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Emoji"
+        label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
+    private lazy var colorTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Цвет"
+        label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -110,35 +161,71 @@ class NewHabitViewController: UIViewController {
     }
     
     func addSubviews() {
-        [nameTrackerTextField, categoryAndScheduleTableView, cancelButton, createButton].forEach { view.addSubview($0) }
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        [nameTrackerTextField, categoryAndScheduleTableView, emojiTitleLabel, emojiCollectionView, colorTitleLabel, colorCollectionView, cancelButton, createButton].forEach { contentView.addSubview($0) }
     }
     
     private func setupConstraints() {
         
         NSLayoutConstraint.activate([
+            // Scroll View
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            //Content View
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
             // Name Tracker Text Field
             nameTrackerTextField.heightAnchor.constraint(equalToConstant: 75),
-            nameTrackerTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            nameTrackerTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            nameTrackerTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            nameTrackerTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            nameTrackerTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            nameTrackerTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             //Category and Schedule TableView
             categoryAndScheduleTableView.heightAnchor.constraint(equalToConstant: 150),
             categoryAndScheduleTableView.topAnchor.constraint(equalTo: nameTrackerTextField.bottomAnchor, constant: 24),
-            categoryAndScheduleTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            categoryAndScheduleTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            categoryAndScheduleTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            categoryAndScheduleTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            
+            //Emoji Title Label
+            emojiTitleLabel.topAnchor.constraint(equalTo: categoryAndScheduleTableView.bottomAnchor, constant: 32),
+            emojiTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            
+            // Emoji Collection View
+            emojiCollectionView.topAnchor.constraint(equalTo: emojiTitleLabel.bottomAnchor, constant: 24),
+            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 204),
+            
+            //Color Title Label
+            colorTitleLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 16),
+            colorTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            
+            // Color Collection View
+            colorCollectionView.topAnchor.constraint(equalTo: colorTitleLabel.bottomAnchor, constant: 24),
+            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: 204),
+            colorCollectionView.bottomAnchor.constraint(equalTo: cancelButton.topAnchor, constant: -24),
             
             // Cancel Button
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
             cancelButton.widthAnchor.constraint(equalToConstant: 166),
-            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            cancelButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            cancelButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             
             //Create Button
             createButton.heightAnchor.constraint(equalToConstant: 60),
-            createButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            createButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             createButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: 8),
-            createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            createButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
         ])
     }
     
@@ -163,8 +250,10 @@ class NewHabitViewController: UIViewController {
         let isNameTextField = !(nameTrackerTextField.text?.isEmpty ?? true)
         let isSelectedCategory = selectedCategory != nil
         let isSelectedSchedule = !selectedSchedule.isEmpty
+        let isSelectedEmoji = selectedEmoji != nil
+        let isSelectedColor = selectedColor != nil
         
-        let isResultEmpty = isNameTextField && isSelectedCategory && isSelectedSchedule
+        let isResultEmpty = isNameTextField && isSelectedCategory && isSelectedSchedule && isSelectedEmoji && isSelectedColor
         createButton.isEnabled = isResultEmpty
         createButton.backgroundColor = isResultEmpty ? .blackYP : .grayYP
     }
@@ -175,17 +264,19 @@ class NewHabitViewController: UIViewController {
     
     @objc private func createButtonTapped () {
         guard let name = nameTrackerTextField.text, !name.isEmpty,
-              let category = selectedCategory, !selectedSchedule.isEmpty else { return }
+              let category = selectedCategory, !selectedSchedule.isEmpty,
+              let emoji = selectedEmoji, 
+            let color = selectedColor else { return }
         
         let newTracker = Tracker(id: UUID(),
                                  name: name,
-                                 color: .colorYP.randomElement() ?? .redYP,
-                                 emoji: "🤍",
+                                 color: color,
+                                 emoji: emoji,
                                  schedule: selectedSchedule)
         delegate?.didCreateTracker(newTracker, categoryTitle: category)
         
-        presentingViewController?.presentingViewController?.dismiss(animated: true)
-        //dismiss(animated: true)
+//        presentingViewController?.presentingViewController?.dismiss(animated: true)
+        dismiss(animated: true)
     }
     
     @objc private func cancelButtonTapped () {
@@ -279,3 +370,18 @@ extension NewHabitViewController: CategorySelectionDelegate {
         updateCreateButtonState()
     }
 }
+
+extension NewHabitViewController: EmojiSelectionDelegate {
+    func didSelectEmoji(_ emoji: String) {
+        selectedEmoji = emoji
+        updateCreateButtonState() 
+    }
+}
+
+extension NewHabitViewController: ColorSelectionDelegate {
+    func didSelectColor(_ color: UIColor) {
+        selectedColor = color
+        updateCreateButtonState()
+    }
+}
+
