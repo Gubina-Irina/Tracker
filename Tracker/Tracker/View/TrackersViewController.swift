@@ -424,7 +424,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 extension TrackersViewController: CreateTrackerViewControllerDelegate {
     func didCreateTracker(_ tracker: Tracker, categoryTitle: String) {
         do {
-            if let _ = try? trackerCategoryStore.fetchCategory(with: categoryTitle) {
+            if let _ = try trackerCategoryStore.fetchCategory(with: categoryTitle) {
                 try trackerStore.addTracker(tracker, categoryTitle: categoryTitle)
             } else {
                 let newCategory = TrackerCategory(title: categoryTitle, trackers: [tracker])

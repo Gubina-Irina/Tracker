@@ -38,7 +38,7 @@ protocol TrackerStoreDelegate: AnyObject {
 }
 
 final class TrackerStore: NSObject {
-    private let uiColorMarshalling = UIColorMarshalling()
+    //private let uiColorMarshalling = UIColorMarshalling()
     private let context: NSManagedObjectContext
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>!
     
@@ -113,7 +113,7 @@ final class TrackerStore: NSObject {
         
         trackerCoreData.id = tracker.id
         trackerCoreData.name = tracker.name
-        trackerCoreData.colorHex = uiColorMarshalling.hexString(from: tracker.color)
+        trackerCoreData.colorHex = tracker.color.hexString
         trackerCoreData.emoji = tracker.emoji
         
         do {
@@ -169,7 +169,7 @@ final class TrackerStore: NSObject {
         guard let name = trackerCoreData.name else {
             throw TrackerStoreError.decodingErrorInvalidName
         }
-        guard let color = trackerCoreData.colorHex else {
+        guard let colorHex = trackerCoreData.colorHex else {
             throw TrackerStoreError.decodingErrorInvalidColorHex
         }
         guard let emoji = trackerCoreData.emoji else {
@@ -186,10 +186,12 @@ final class TrackerStore: NSObject {
             }
         }
         
+        let color = colorHex.color
+        
         return Tracker(
             id: id,
             name: name,
-            color: uiColorMarshalling.color(from: color),
+            color: color,
             emoji: emoji,
             schedule: schedule
         )

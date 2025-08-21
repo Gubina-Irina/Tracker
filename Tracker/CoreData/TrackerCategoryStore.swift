@@ -91,7 +91,7 @@ final class TrackerCategoryStore: NSObject {
             let trackerCoreData = TrackerCoreData(context: context)
             trackerCoreData.id = tracker.id
             trackerCoreData.name = tracker.name
-            trackerCoreData.colorHex = UIColorMarshalling().hexString(from: tracker.color)
+            trackerCoreData.colorHex = tracker.color.hexString
             trackerCoreData.emoji = tracker.emoji
             
             do {
@@ -180,8 +180,7 @@ final class TrackerCategoryStore: NSObject {
                 throw TrackerCategoryStoreError.decodingErrorInvalidTrackers
             }
             
-            let uiColorMarshalling = UIColorMarshalling()
-            let color = uiColorMarshalling.color(from: colorHex)
+            let color = colorHex.color
             
             var schedule: [Weekday] = []
             if let scheduleData = trackerCoreData.schedule {
@@ -243,19 +242,37 @@ extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
     ) {
         switch type {
         case .insert:
-            guard let indexPath = newIndexPath else { fatalError() }
+            guard let indexPath = newIndexPath else {
+                assertionFailure("Received insert event without newIndexPath")
+                print("Error: Received insert event without newIndexPath")
+                return
+            }
             insertedIndexes?.insert(indexPath.item)
         case .delete:
-            guard let indexPath = indexPath else { fatalError() }
+            guard let indexPath = indexPath else {
+                assertionFailure("Received delete event without indexPath")
+                print("Error: Received delete event without newIndexPath")
+                return
+            }
             deletedIndexes?.insert(indexPath.item)
         case .update:
-            guard let indexPath = indexPath else { fatalError() }
+            guard let indexPath = indexPath else {
+                assertionFailure("Received update event without indexPath")
+                print("Error: Received update event without newIndexPath")
+                return
+            }
             updatedIndexes?.insert(indexPath.item)
         case .move:
-            guard let oldIndexPath = indexPath, let newIndexPath = newIndexPath else { fatalError() }
+            guard let oldIndexPath = indexPath, let newIndexPath = newIndexPath else {
+                assertionFailure("Received move event without proper indexPath")
+                print("Error: Received move event without proper newIndexPath")
+                return
+            }
             movedIndexes?.insert(.init(oldIndex: oldIndexPath.item, newIndex: newIndexPath.item))
+            
         @unknown default:
-            fatalError()
+            assertionFailure("Received unknown NSFetchedResultsChangeType")
+            print("Warning: Received unknown NSFetchedResultsChangeType: \(type)")
         }
     }
 }
