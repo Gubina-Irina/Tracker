@@ -9,5 +9,6 @@ import Foundation
 
 struct TrackerCategory {
     let title: String
-    let trackers: [Tracker] //тут массив трекеров определенной категории, пока не знаю, как сделать
+    let trackers: [Tracker]
+    
 }

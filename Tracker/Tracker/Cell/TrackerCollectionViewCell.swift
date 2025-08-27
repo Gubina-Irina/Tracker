@@ -15,7 +15,7 @@ class TrackerCollectionViewCell: UICollectionViewCell {
     private var currentDate: Date = Date()
     private var isCompletedToday: Bool = false
     private let calendar: Calendar = {
-    var calendar = Calendar(identifier: .gregorian)
+        var calendar = Calendar(identifier: .gregorian)
         calendar.firstWeekday = 2 // Понедельник — первый день недели
         return calendar
     }()
@@ -23,15 +23,6 @@ class TrackerCollectionViewCell: UICollectionViewCell {
     static let identifier = "TrackerCollectionViewCell"
     
     //MARK: - UI Elements
-    
-//        private lazy var titleCategoryLabel: UILabel = {
-//            let label = UILabel()
-//            label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
-//            label.textColor = .blackYP
-//            label.translatesAutoresizingMaskIntoConstraints = false
-//            
-//            return label
-//        }()
     
     private lazy var cardView: UIView = {
         let view = UIView()
@@ -110,12 +101,11 @@ class TrackerCollectionViewCell: UICollectionViewCell {
     
     private func addSubviews() {
         contentView.addSubview(cardView)
-        //contentView.addSubview(titleCategoryLabel)
+        cardView.addSubview(emojiBackgroundView)
         cardView.addSubview(emojiLabel)
         cardView.addSubview(nameLabel)
         contentView.addSubview(dayCounterLabel)
         contentView.addSubview(plusButton)
-        cardView.addSubview(emojiBackgroundView)
     }
     
     private func setupConstraints() {
@@ -126,21 +116,21 @@ class TrackerCollectionViewCell: UICollectionViewCell {
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
-//            //Title Category Label
-//            titleCategoryLabel.bottomAnchor.constraint(equalTo: cardView.topAnchor, constant: -12),
-//            titleCategoryLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
+            //            //Title Category Label
+            //            titleCategoryLabel.bottomAnchor.constraint(equalTo: cardView.topAnchor, constant: -12),
+            //            titleCategoryLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             
             //Emoji Background View
             emojiBackgroundView.widthAnchor.constraint(equalToConstant: 24),
-                emojiBackgroundView.heightAnchor.constraint(equalToConstant: 24),
+            emojiBackgroundView.heightAnchor.constraint(equalToConstant: 24),
             emojiBackgroundView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
-                emojiBackgroundView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
-
+            emojiBackgroundView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
+            
             //Emoji Label
-//         emojiLabel.heightAnchor.constraint(equalToConstant: 22),
-//          emojiLabel.widthAnchor.constraint(equalToConstant: 16),
-//            emojiLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
-//            emojiLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
+            //         emojiLabel.heightAnchor.constraint(equalToConstant: 22),
+            //          emojiLabel.widthAnchor.constraint(equalToConstant: 16),
+            //            emojiLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
+            //            emojiLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             emojiLabel.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiBackgroundView.centerYAnchor),
             
@@ -181,7 +171,7 @@ class TrackerCollectionViewCell: UICollectionViewCell {
     private func updateButtonAppearance(trackerColor: UIColor) {
         let image = isCompletedToday ? UIImage(systemName: "checkmark") : UIImage(systemName: "plus")
         let configuration = UIImage.SymbolConfiguration(pointSize: 12, weight: .bold)
-            let sizedImage = image?.withConfiguration(configuration)
+        let sizedImage = image?.withConfiguration(configuration)
         
         plusButton.setImage(sizedImage, for: .normal)
         plusButton.backgroundColor = isCompletedToday ? trackerColor.withAlphaComponent(0.3) : trackerColor
@@ -192,12 +182,12 @@ class TrackerCollectionViewCell: UICollectionViewCell {
         let selectedDate = calendar.startOfDay(for: currentDate)
         
         guard let trackerId = trackerId,
-        let tracker = tracker else { return }
+              let tracker = tracker else { return }
         
         if tracker.schedule.isEmpty {
             guard calendar.isDate(selectedDate, inSameDayAs: today) else { return }
-                } else {
-                    guard selectedDate <= today else { return }
+        } else {
+            guard selectedDate <= today else { return }
         }
         isCompletedToday.toggle()
         updateButtonAppearance(trackerColor: cardView.backgroundColor ?? .greenYP)

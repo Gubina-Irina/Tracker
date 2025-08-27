@@ -48,50 +48,19 @@ class IrregularEventViewController: UIViewController {
         return textField
     }()
     
-    private lazy var categoryButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.layer.cornerRadius = 16
-        button.backgroundColor = .lightGrayYP
+    private lazy var categoryTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "categoryCell")
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.separatorStyle = .singleLine
+        tableView.clipsToBounds = true
+        tableView.isScrollEnabled = false
+        let layer = tableView.layer
+        layer.cornerRadius = 16
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         
-        if #available(iOS 15.0, *) {
-            var configuration = UIButton.Configuration.plain()
-            configuration.title = "Категория"
-            configuration.baseForegroundColor = .blackYP
-            configuration.contentInsets = NSDirectionalEdgeInsets(
-                top: 0, leading: 16, bottom: 0, trailing: 30)
-            let forwardArrowImage = UIImage(resource: .forwardArrow)
-            configuration.image = forwardArrowImage
-            configuration.imageColorTransformer = UIConfigurationColorTransformer { _ in
-                return .grayYP
-            }
-            configuration.imagePlacement = .trailing
-            configuration.imagePadding = 8
-            
-            button.configuration = configuration
-        } else {
-            button.setTitle("Категория", for: .normal)
-            button.setTitleColor(.blackYP, for: .normal)
-            button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 30)
-            
-            let forwardArrowImage = UIImageView(image: UIImage(resource: .forwardArrow))
-            forwardArrowImage.tintColor = .grayYP
-            forwardArrowImage.translatesAutoresizingMaskIntoConstraints = false
-            button.addSubview(forwardArrowImage)
-            
-            NSLayoutConstraint.activate([
-                forwardArrowImage.heightAnchor.constraint(equalToConstant: 24),
-                forwardArrowImage.widthAnchor.constraint(equalToConstant: 24),
-                forwardArrowImage.centerYAnchor.constraint(equalTo: button.centerYAnchor),
-                forwardArrowImage.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -16)
-            ])
-        }
-            button.titleLabel?.font = UIFont.systemFont(ofSize: 17)
-            button.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
-            button.contentHorizontalAlignment = .leading
-            button.contentVerticalAlignment = .center
-            button.translatesAutoresizingMaskIntoConstraints = false
-        
-        return button
+        return tableView
     }()
     
     private lazy var cancelButton: UIButton = {
@@ -164,8 +133,6 @@ class IrregularEventViewController: UIViewController {
         setupUI()
         setupTapGesture()
         
-        //TODO: тут пока принудительно стоит категория. как в тз нужно будет реализовать, убрать
-       selectedCategory = "Спорт"
     }
     
     private func updateCreateButtonState() {
@@ -201,7 +168,7 @@ class IrregularEventViewController: UIViewController {
     func addSubviews() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-        [nameTrackerTextField, categoryButton, cancelButton, createButton, emojiTitleLabel, emojiCollectionView, colorTitleLabel, colorCollectionView, ].forEach { contentView.addSubview($0) }
+        [nameTrackerTextField, categoryTableView, cancelButton, createButton, emojiTitleLabel, emojiCollectionView, colorTitleLabel, colorCollectionView, ].forEach { contentView.addSubview($0) }
     }
     
     private func setupConstraints() {
@@ -227,13 +194,13 @@ class IrregularEventViewController: UIViewController {
             nameTrackerTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             //Category and Schedule TableView
-            categoryButton.heightAnchor.constraint(equalToConstant: 75),
-            categoryButton.topAnchor.constraint(equalTo: nameTrackerTextField.bottomAnchor, constant: 24),
-            categoryButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            categoryButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            categoryTableView.heightAnchor.constraint(equalToConstant: 75),
+            categoryTableView.topAnchor.constraint(equalTo: nameTrackerTextField.bottomAnchor, constant: 24),
+            categoryTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            categoryTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             //Emoji Title Label
-            emojiTitleLabel.topAnchor.constraint(equalTo: categoryButton.bottomAnchor, constant: 32),
+            emojiTitleLabel.topAnchor.constraint(equalTo: categoryTableView.bottomAnchor, constant: 32),
             emojiTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
             
             // Emoji Collection View
@@ -264,25 +231,15 @@ class IrregularEventViewController: UIViewController {
             createButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             createButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: 8),
             createButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
-            
-//            // Cancel Button
-//            cancelButton.heightAnchor.constraint(equalToConstant: 60),
-//            cancelButton.widthAnchor.constraint(equalToConstant: 166),
-//            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-//            cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-//            
-//            //Create Button
-//            createButton.heightAnchor.constraint(equalToConstant: 60),
-//            createButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-//            createButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: 8),
-//            createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
     
-    @objc private func categoryButtonTapped() {
-        let eventCategoryVC = EventCategoryViewController()
-        eventCategoryVC.delegate = self
-        let eventCategoryNC = UINavigationController(rootViewController: eventCategoryVC)
+    private func categoryButtonTapped() {
+        let categoryVC = CategoryViewController()
+        categoryVC.delegate = self
+        categoryVC.title = "Категория"
+        
+        let eventCategoryNC = UINavigationController(rootViewController: categoryVC)
         eventCategoryNC.modalPresentationStyle = .pageSheet
         present(eventCategoryNC, animated: true)
     }
@@ -293,9 +250,9 @@ class IrregularEventViewController: UIViewController {
     
     @objc private func createButtonTapped () {
         guard let name = nameTrackerTextField.text, !name.isEmpty,
-        let category = selectedCategory,
-        let emoji = selectedEmoji,
-        let color = selectedColor else { return }
+              let category = selectedCategory,
+              let emoji = selectedEmoji,
+              let color = selectedColor else { return }
         
         let newTracker = Tracker(id: UUID(),
                                  name: name,
@@ -305,7 +262,6 @@ class IrregularEventViewController: UIViewController {
         delegate?.didCreateTracker(newTracker, categoryTitle: category)
         
         presentingViewController?.presentingViewController?.dismiss(animated: true)
-        //dismiss(animated: true)
     }
     
     
@@ -316,23 +272,21 @@ class IrregularEventViewController: UIViewController {
     @objc private func textFieldChanged() {
         updateCreateButtonState()
     }
-    
 }
 
 
 extension IrregularEventViewController: UITextFieldDelegate {
-    
     // Скрываем клавиатуру по нажатию на Done
-    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
 }
 
-extension IrregularEventViewController: EventCategoryDelegate {
+extension IrregularEventViewController: CategorySelectionDelegate {
     func didSelectCategory(_ category: String) {
         selectedCategory = category
+        categoryTableView.reloadData()
         updateCreateButtonState()
     }
 }
@@ -348,5 +302,42 @@ extension IrregularEventViewController: ColorSelectionDelegate {
     func didSelectColor(_ color: UIColor) {
         selectedColor = color
         updateCreateButtonState()
+    }
+}
+
+extension IrregularEventViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+        cell.backgroundColor = .lightGrayYP
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 17)
+        cell.textLabel?.textColor = .blackYP
+        cell.accessoryType = .disclosureIndicator
+        cell.textLabel?.text = "Категория"
+        
+        cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 13)
+        cell.detailTextLabel?.textColor = .grayYP
+        
+        if let selectedCategory = selectedCategory {
+            cell.detailTextLabel?.text = selectedCategory
+        } else {
+            cell.detailTextLabel?.text = nil
+        }
+        
+        return cell
+    }
+}
+
+extension IrregularEventViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        categoryButtonTapped()
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        75
     }
 }

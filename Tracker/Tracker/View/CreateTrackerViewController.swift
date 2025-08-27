@@ -57,7 +57,6 @@ class CreateTrackerViewController: UIViewController {
         let habbitNC = UINavigationController(rootViewController: habbitVC)
         habbitNC.modalPresentationStyle = .pageSheet
         present(habbitNC, animated: true)
-        
     }
     
     @objc func irregularEventButtonTapped() {
@@ -72,7 +71,6 @@ class CreateTrackerViewController: UIViewController {
         configureView()
         addSubviews()
         setupConstraints()
-        
     }
     
     func addSubviews() {
@@ -82,7 +80,6 @@ class CreateTrackerViewController: UIViewController {
     private func configureView() {
         view.backgroundColor = .whiteYP
         title = "Создание трекера"
-        
     }
     
     private func setupConstraints() {
