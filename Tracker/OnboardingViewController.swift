@@ -31,7 +31,7 @@ final class OnboardingViewController: UIPageViewController {
         return pageControl
     }()
     
-    private var skipButton: UIButton = {
+    private lazy var skipButton: UIButton = {
         let button = UIButton(type: .system)
         
         button.setTitle("Вот это технологии!", for: .normal)
@@ -46,12 +46,12 @@ final class OnboardingViewController: UIPageViewController {
     }()
     
     init() {
-           super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-       }
-       
-       required init?(coder: NSCoder) {
-           fatalError("init(coder:) has not been implemented")
-       }
+        super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -92,7 +92,7 @@ final class OnboardingViewController: UIPageViewController {
         ])
     }
     
-    @objc func skipButtonTapped(){
+    @objc private func skipButtonTapped(){
         finishOnboarding()
     }
     
@@ -136,7 +136,9 @@ final class OnboardingViewController: UIPageViewController {
         
         let tabBarController = MainTabBarViewController()
         
-        guard let window = UIApplication.shared.windows.first else { return }
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return }
         window.rootViewController = tabBarController
     }
 }

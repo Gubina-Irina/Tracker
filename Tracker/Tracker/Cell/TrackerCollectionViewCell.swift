@@ -116,10 +116,6 @@ class TrackerCollectionViewCell: UICollectionViewCell {
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
-            //            //Title Category Label
-            //            titleCategoryLabel.bottomAnchor.constraint(equalTo: cardView.topAnchor, constant: -12),
-            //            titleCategoryLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
-            
             //Emoji Background View
             emojiBackgroundView.widthAnchor.constraint(equalToConstant: 24),
             emojiBackgroundView.heightAnchor.constraint(equalToConstant: 24),

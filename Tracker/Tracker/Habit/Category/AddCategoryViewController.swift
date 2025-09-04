@@ -23,7 +23,7 @@ final class AddCategoryViewController: UIViewController {
     private var categoryToEdit: String?
     private var categoryIndex: Int?
     private var isEditMode: Bool {
-        return categoryToEdit != nil
+        categoryToEdit != nil
     }
     
     private lazy var doneButton: UIButton = {

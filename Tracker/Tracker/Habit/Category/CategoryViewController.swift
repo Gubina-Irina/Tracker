@@ -21,7 +21,7 @@ final class CategoryViewController: UIViewController {
     
     private lazy var placeholderImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "trackerPlaceholderImage")
+        imageView.image = UIImage(resource: .trackerPlaceholder)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         
         return imageView
@@ -172,10 +172,10 @@ extension CategoryViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "cellCategory", for: indexPath) as? CategoryCell else
         { return UITableViewCell()}
         let category = viewModel.categories[indexPath.row].title
-            let isSelected = (category == selectedCategory)
-            
-            cell.configure(with: category, isSelected: isSelected)
-            return cell
+        let isSelected = (category == selectedCategory)
+        
+        cell.configure(with: category, isSelected: isSelected)
+        return cell
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

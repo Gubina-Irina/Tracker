@@ -416,13 +416,16 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
                         insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: 16, bottom: 16, right: 16)
     }
+    
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
-            let header = collectionView.dequeueReusableSupplementaryView(
+           guard let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
                 withReuseIdentifier: "SectionHeader",
                 for: indexPath
-            ) as! TrackerSectionHeaderView
+            ) as? TrackerSectionHeaderView else {
+                return UICollectionReusableView()
+            }
             
             let category = visibleCategories[indexPath.section]
             header.configure(with: category.title)

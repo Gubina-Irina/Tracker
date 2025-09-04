@@ -320,12 +320,7 @@ extension IrregularEventViewController: UITableViewDataSource {
         
         cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 13)
         cell.detailTextLabel?.textColor = .grayYP
-        
-        if let selectedCategory = selectedCategory {
-            cell.detailTextLabel?.text = selectedCategory
-        } else {
-            cell.detailTextLabel?.text = nil
-        }
+        cell.detailTextLabel?.text = selectedCategory
         
         return cell
     }
