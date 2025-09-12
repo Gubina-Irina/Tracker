@@ -31,10 +31,10 @@ class IrregularEventViewController: UIViewController {
     
     private lazy var nameTrackerTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = LocalizedStrings.trackerPlaceholderName
         textField.textColor = .blackYP
         textField.tintColor = .grayYP
-        textField.backgroundColor = .lightGrayYP
+        textField.backgroundColor = .lightGrayYP30
         textField.font = UIFont.systemFont(ofSize: 17)
         textField.layer.cornerRadius = 16
         textField.leftView = UIView(frame: CGRect (x:16, y: 0, width: 17, height: textField.frame.height))
@@ -69,7 +69,7 @@ class IrregularEventViewController: UIViewController {
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.redYP.cgColor
         button.backgroundColor = .clear
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(LocalizedStrings.cancel, for: .normal)
         button.setTitleColor(.redYP, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
@@ -83,7 +83,7 @@ class IrregularEventViewController: UIViewController {
         let button = UIButton(type: .system)
         button.layer.cornerRadius = 16
         button.backgroundColor = .grayYP
-        button.setTitle("Создать", for: .normal)
+        button.setTitle(LocalizedStrings.create, for: .normal)
         button.setTitleColor(.whiteYP, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
@@ -112,7 +112,7 @@ class IrregularEventViewController: UIViewController {
     
     private lazy var emojiTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Emoji"
+        label.text = LocalizedStrings.emoji
         label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         
@@ -121,7 +121,7 @@ class IrregularEventViewController: UIViewController {
     
     private lazy var colorTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Цвет"
+        label.text = LocalizedStrings.color
         label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         
@@ -154,7 +154,7 @@ class IrregularEventViewController: UIViewController {
     
     private func configureView() {
         view.backgroundColor = .whiteYP
-        title = "Новое нерегулярное событие"
+        title = LocalizedStrings.newIrregularEvent
         
     }
     
@@ -237,7 +237,7 @@ class IrregularEventViewController: UIViewController {
     private func categoryButtonTapped() {
         let categoryVC = CategoryViewController()
         categoryVC.delegate = self
-        categoryVC.title = "Категория"
+        categoryVC.title = LocalizedStrings.category
         
         let eventCategoryNC = UINavigationController(rootViewController: categoryVC)
         eventCategoryNC.modalPresentationStyle = .pageSheet
@@ -312,11 +312,11 @@ extension IrregularEventViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        cell.backgroundColor = .lightGrayYP
+        cell.backgroundColor = .lightGrayYP30
         cell.textLabel?.font = UIFont.systemFont(ofSize: 17)
         cell.textLabel?.textColor = .blackYP
         cell.accessoryType = .disclosureIndicator
-        cell.textLabel?.text = "Категория"
+        cell.textLabel?.text = LocalizedStrings.category
         
         cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 13)
         cell.detailTextLabel?.textColor = .grayYP

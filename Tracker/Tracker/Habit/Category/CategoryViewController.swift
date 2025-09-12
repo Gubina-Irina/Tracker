@@ -29,7 +29,7 @@ final class CategoryViewController: UIViewController {
     
     private lazy var placeholderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Привычки и события можно\nобъединить по смыслу"
+        label.text = LocalizedStrings.categoryPlaceholder
         label.numberOfLines = 2
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
@@ -67,7 +67,7 @@ final class CategoryViewController: UIViewController {
         let button = UIButton(type: .system)
         button.layer.cornerRadius = 16
         button.backgroundColor = .blackYP
-        button.setTitle("Добавить категорию", for: .normal)
+        button.setTitle(LocalizedStrings.addCategory, for: .normal)
         button.setTitleColor(.whiteYP, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
@@ -94,7 +94,7 @@ final class CategoryViewController: UIViewController {
     
     private func configureView() {
         view.backgroundColor = .whiteYP
-        title = "Категория"
+        title = LocalizedStrings.category
         
     }
     
@@ -207,7 +207,7 @@ extension CategoryViewController: UITableViewDataSource {
         cell.layer.masksToBounds = !corners.isEmpty
         
         // Устанавливаем фон для ячейки
-        cell.backgroundColor = .lightGrayYP
+        cell.backgroundColor = .lightGrayYP30
     }
     
 }
@@ -243,10 +243,10 @@ extension CategoryViewController: UITableViewDelegate {
         let category = viewModel.categories[indexPath.row]
         
         let editAction = UIAction(
-            title: "Редактировать") { [weak self] _ in
+            title: LocalizedStrings.edit) { [weak self] _ in
                 self?.navigateToEditCategory(category, at: indexPath)}
         let deleteAction = UIAction(
-            title: "Удалить", attributes: .destructive) { [weak self] _ in
+            title: LocalizedStrings.delete, attributes: .destructive) { [weak self] _ in
                 self?.deleteCategory(category, at: indexPath)}
         return UIMenu(children: [editAction, deleteAction])
         
@@ -264,11 +264,11 @@ extension CategoryViewController: UITableViewDelegate {
     private func deleteCategory(_ category: TrackerCategory, at indexPath: IndexPath) {
         let alertController = UIAlertController(
             title: nil,
-            message: "Эта категория точно не нужна?",
+            message: LocalizedStrings.deleteCategoryConfirmation,
             preferredStyle: .actionSheet
         )
         
-        let deleteAction = UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        let deleteAction = UIAlertAction(title: LocalizedStrings.delete, style: .destructive) { [weak self] _ in
             self?.viewModel.deleteCategory(at: indexPath.row)
             
             if self?.selectedCategory == category.title {
@@ -278,7 +278,7 @@ extension CategoryViewController: UITableViewDelegate {
             self?.categoryTableView.reloadData()
         }
         
-        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel)
+        let cancelAction = UIAlertAction(title: LocalizedStrings.cancel, style: .cancel)
         
         alertController.addAction(deleteAction)
         alertController.addAction(cancelAction)
