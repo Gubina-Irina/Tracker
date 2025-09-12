@@ -30,7 +30,7 @@ final class AddCategoryViewController: UIViewController {
         let button = UIButton(type: .system)
         button.layer.cornerRadius = 16
         button.backgroundColor = .grayYP
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(LocalizedStrings.done, for: .normal)
         button.setTitleColor(.whiteYP, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
@@ -43,7 +43,7 @@ final class AddCategoryViewController: UIViewController {
     
     private lazy var nameCategoryTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = LocalizedStrings.categoryTextFieldPlaceholder
         textField.textColor = .blackYP
         textField.tintColor = .grayYP
         textField.backgroundColor = .lightGrayYP
@@ -89,7 +89,7 @@ final class AddCategoryViewController: UIViewController {
     
     private func configureView() {
         view.backgroundColor = .whiteYP
-        title = isEditMode ? "Редактирование категории" : "Новая категория"
+        title = isEditMode ? LocalizedStrings.editingCategory: LocalizedStrings.newCategory
     }
     
     private func setupUI() {

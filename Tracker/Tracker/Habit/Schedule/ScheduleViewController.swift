@@ -35,7 +35,7 @@ class ScheduleViewController: UIViewController {
         let button = UIButton(type: .system)
         button.layer.cornerRadius = 16
         button.backgroundColor = .blackYP
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(LocalizedStrings.done, for: .normal)
         button.setTitleColor(.whiteYP, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
@@ -55,7 +55,7 @@ class ScheduleViewController: UIViewController {
     
     private func configureView() {
         view.backgroundColor = .whiteYP
-        title = "Расписание"
+        title = LocalizedStrings.schedule
         
     }
     
@@ -104,7 +104,7 @@ extension ScheduleViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cellSchedule", for: indexPath)
         let weekday = Weekday.allCases[indexPath.row]
         cell.textLabel?.text = weekday.fullName
-        cell.backgroundColor = .lightGrayYP
+        cell.backgroundColor = .lightGrayYP30
         cell.textLabel?.font = UIFont.systemFont(ofSize: 17)
         cell.textLabel?.textColor = .blackYP
         
